@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"> </script>
+	</head>
+	<body>
+<h1>Asynchronous JavaScript Implementations</h1>	
+<hr>
+<h2>Using Legacy XMLHttpRequest Object</h2>
+<p id="display"></p>
+<script>
+	//create an instance of the XMLHttpRequest Object
+			var xhttp = new XMLHttpRequest();
+	//prepare and send a request to server
+	//prepare == point to the location of the desired content
+			let my_url ="https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey=demo";
+		//open the resource
+			xhttp.open('GET',my_url,true); //true=send request asynchronously
+		
+		//send request
+			xhttp.send();
+		
+	   //check whether the response is ready and process the result accordingly
+	   xhttp.onreadystatechange = function(){
+	   	//check the phase of the request (check for phase 4, which means server responded and check for the status of the response: status 200, which means "OK")
+			if (this.readyState==4 && this.status==200) {
+				//do something with the response/result
+				//response is in form of JSON Text
+				//Convert to JS object for easy processing
+				let js_obj = JSON.parse(xhttp.responseText);
+				
+				//log result to console
+				console.log(js_obj);
+				
+				//display in <p> Element
+				let result = document.getElementById("display");
+				result.innerHTML = "Symbol:" + js_obj["Global Quote"]["01. symbol"] +"<br>";
+				result.innerHTML += "Opening Price:" + js_obj["Global Quote"]["02. open"];
+	   	}
+	   }
+				
+			
+</script>	
+		<h2>Asynchoronous JavaScript: jQuery</h2>
+		<p id="display1"></p>
+		
+		<script>
+			//jQuery uses $.ajax() object 
+			$.ajax({
+				//url to retruve content from
+				url: my_url,
+				
+				//if request is successful, process result
+				success: function(result){
+					//process result here
+					//display in <p> Element
+					let result1 = document.getElementById("display1");
+					result1.innerHTML = "Symbol:" + result["Global Quote"]["01. symbol"] +"<br>";
+					result1.innerHTML += "Opening Price:" + result["Global Quote"]["02. open"];
+
+				},
+				//if not successful, displya error
+				error: function(err){
+					alert(err.message);
+				}
+				
+				
+			});
+			
+		</script>
+		
+		<h2>Asynchronous JavaScript: Using Fetch() - "New Kid on the Block"</h2>
+		<p id="display2"></p>
+		<script>
+			//Note: form input, retrieve user input using ".value" notation
+			//if textbox has id="name": 
+			// var name = document.getElementById("name").value;
+			
+			//get api Key
+			let key = "demo";
+			let url2 = "https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=IBM&apikey="+key;
+			//define fetch() promise
+			fetch(url2)
+			.then(
+			function(response){
+					//parse the returned data
+					response.json()
+				
+				//display the returned data
+				.then(function(res) {
+					let result2 = document.getElementById("display2");
+					result2.innerHTML = "Symbol:" + res["Global Quote"]["01. symbol"] +"<br>";
+					result2.innerHTML += "Opening Price:" + res["Global Quote"]["02. open"]; 
+
+				})
+			})
+	
+			.catch(function(err)
+			{
+				alert('Fetch error:', err);
+				
+			})
+				
+		</script>
+	<h2>Asynchronous JavaScript: Using Async function</h2>
+		<p id="display3"></p>
+		<script>
+			//sdefine asynch Function
+			async function getStockQuote(){
+			//do error handling using "try--catch"	
+			try{ 
+				//define the await expression
+				let output = await fetch(url2);
+				//console.log(output.json());
+				let output1 = await output.json();
+				//console.log(output1);
+				let result3 = document.getElementById("display3");
+				result3.innerHTML = "Symbol:" + output1["Global Quote"]["01. symbol"] +"<br>";
+				result3.innerHTML += "Opening Price:" + output1["Global Quote"]["02. open"]; 
+             
+			}
+				catch (error) {
+				//report the error in an alert()
+				alert(error);
+				}	
+			}
+		
+		//call the function
+			getStockQuote();
+			
+		</script>
+		
+	</body>
+</html>
